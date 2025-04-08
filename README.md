@@ -1,146 +1,123 @@
-# handson-10-MachineLearning-with-MLlib.
+# Hands-on #10: Machine Learning with MLlib – Customer Churn Prediction
 
-#  Customer Churn Prediction with MLlib
+## Overview
 
-This project uses Apache Spark MLlib to predict customer churn based on structured customer data. You will preprocess data, train classification models, perform feature selection, and tune hyperparameters using cross-validation.
+This project demonstrates a complete machine learning workflow for predicting customer churn using Apache Spark's MLlib. The implementation includes data preprocessing, feature engineering, model training and evaluation, feature selection, and hyperparameter tuning with cross-validation.
 
----
+The workflow is divided into four main tasks:
+
+Data Preprocessing and Feature Engineering
+
+Logistic Regression Model Training and Evaluation
+
+Feature Selection using Chi-Square Test
+
+Hyperparameter Tuning and Model Comparison
+
+## Requirements
+
+Apache Spark (version 3.0 or higher)
+Python (version 3.6 or higher)
+PySpark
+Dataset: customer_churn.csv
+
+## Installation
+
+Install Apache Spark following the official documentation for your system
+### Install PySpark:
+```bash
+pip install pyspark
+```
 
 
-
-Build and compare machine learning models using PySpark to predict whether a customer will churn based on their service usage and subscription features.
-
----
-
-##  Dataset
-
-The dataset used is `customer_churn.csv`, which includes features like:
-
-- `gender`, `SeniorCitizen`, `tenure`, `PhoneService`, `InternetService`, `MonthlyCharges`, `TotalCharges`, `Churn` (label), etc.
-
----
-
-##  Tasks
+## Task-by-Task Explanation
 
 ### Task 1: Data Preprocessing and Feature Engineering
 
-**Objective:**  
-Clean the dataset and prepare features for ML algorithms.
+#### Code Explanation:
 
-**Steps:**
-1. Fill missing values in `TotalCharges` with 0.
-2. Encode categorical features using `StringIndexer` and `OneHotEncoder`.
-3. Assemble numeric and encoded features into a single feature vector with `VectorAssembler`.
+Handles missing values in TotalCharges by filling with 0
 
-**Code Output:**
+Identifies categorical and numerical columns
 
-```
-+--------------------+-----------+
-|features            |ChurnIndex |
-+--------------------+-----------+
-|[0.0,12.0,29.85,29...|0.0        |
-|[0.0,1.0,56.95,56....|1.0        |
-|[1.0,5.0,53.85,108...|0.0        |
-|[0.0,2.0,42.30,184...|1.0        |
-|[0.0,8.0,70.70,151...|0.0        |
-+--------------------+-----------+
-```
----
+Uses StringIndexer to convert categorical columns to numeric indices
 
-### Task 2: Train and Evaluate Logistic Regression Model
+Applies OneHotEncoder to the indexed categorical columns
 
-**Objective:**  
-Train a logistic regression model and evaluate it using AUC (Area Under ROC Curve).
+Combines all features using VectorAssembler
 
-**Steps:**
-1. Split dataset into training and test sets (80/20).
-2. Train a logistic regression model.
-3. Use `BinaryClassificationEvaluator` to evaluate.
+Converts the target variable "Churn" to numeric label
 
-**Code Output Example:**
-```
-Logistic Regression Model Accuracy: 0.83
-```
 
----
+### Task 2: Train and Evaluate a Logistic Regression Model
 
-###  Task 3: Feature Selection using Chi-Square Test
+#### Code Explanation:
 
-**Objective:**  
-Select the top 5 most important features using Chi-Square feature selection.
+Splits data into 80% training and 20% testing sets
 
-**Steps:**
-1. Use `ChiSqSelector` to rank and select top 5 features.
-2. Print the selected feature vectors.
+Initializes and trains a Logistic Regression model
 
-**Code Output Example:**
-```
-+--------------------+-----------+
-|selectedFeatures    |ChurnIndex |
-+--------------------+-----------+
-|[0.0,29.85,0.0,0.0...|0.0        |
-|[1.0,56.95,1.0,0.0...|1.0        |
-|[0.0,53.85,0.0,1.0...|0.0        |
-|[1.0,42.30,0.0,0.0...|1.0        |
-|[0.0,70.70,0.0,1.0...|0.0        |
-+--------------------+-----------+
+Makes predictions on test data
 
-```
+Evaluates model performance using AUC (Area Under ROC Curve)
 
----
+### Task 3: Feature Selection using Chi-Square Test
+
+#### Code Explanation:
+
+Uses ChiSqSelector to select top 5 most relevant features
+
+Displays the indices of selected features
+
 
 ### Task 4: Hyperparameter Tuning and Model Comparison
+#### Code Explanation:
 
-**Objective:**  
-Use CrossValidator to tune models and compare their AUC performance.
+Defines four models: Logistic Regression, Decision Tree, Random Forest, and GBT
 
-**Models Used:**
-- Logistic Regression
-- Decision Tree Classifier
-- Random Forest Classifier
-- Gradient Boosted Trees (GBT)
+Sets up hyperparameter grids for each model
 
-**Steps:**
-1. Define models and parameter grids.
-2. Use `CrossValidator` for 5-fold cross-validation.
-3. Evaluate and print best model results.
+Performs 5-fold cross-validation for each model
 
-**Code Output Example:**
+Compares performance and identifies the best model based on AUC
+
+### Results
+
+[Output](model_outputs.txt)
+
+ ```bash
+Customer Churn Modeling Report
+==============================
+
+=== Logistic Regression ===
+AUC: 0.7946
+
+=== Feature Selection (Chi-Square) ===
+Top 5 selected features (first 5 rows):
+Row(selectedFeatures=DenseVector([0.0, 53.0, 1.0, 0.0, 0.0]), label=0.0)
+Row(selectedFeatures=SparseVector(5, {1: 8.0, 3: 1.0}), label=0.0)
+Row(selectedFeatures=DenseVector([1.0, 10.0, 0.0, 0.0, 1.0]), label=0.0)
+Row(selectedFeatures=DenseVector([1.0, 60.0, 1.0, 0.0, 1.0]), label=1.0)
+Row(selectedFeatures=DenseVector([0.0, 12.0, 1.0, 0.0, 1.0]), label=0.0)
+
+=== Model Tuning and Comparison ===
+LogisticRegression AUC: 0.7944
+DecisionTree AUC: 0.6406
+RandomForest AUC: 0.8204
+GBTClassifier AUC: 0.7709
+Best model: RandomForest with AUC = 0.8204
 ```
-Tuning LogisticRegression...
-LogisticRegression Best Model Accuracy (AUC): 0.84
-Best Params for LogisticRegression: regParam=0.01, maxIter=20
 
-Tuning DecisionTree...
-DecisionTree Best Model Accuracy (AUC): 0.77
-Best Params for DecisionTree: maxDepth=10
 
-Tuning RandomForest...
-RandomForest Best Model Accuracy (AUC): 0.86
-Best Params for RandomForest: maxDepth=15
-numTrees=50
+### Commands for execution
 
-Tuning GBT...
-GBT Best Model Accuracy (AUC): 0.88
-Best Params for GBT: maxDepth=10
-maxIter=20
+Generate input dataset
 
+```python
+python dataset_generator.py
 ```
----
 
-##  Execution Instructions
-
-### 1. Prerequisites
-
-- Apache Spark installed
-- Python environment with `pyspark` installed
-- `customer_churn.csv` placed in the project directory
-
-### 2. Run the Project
-
-### 2. Run the Pr
-
-```bash
-spark-submit churn_prediction.py
+Run the code
+```python
+python customer-churn-analysis.py
 ```
-### Make sure to include your original ouput and explain the code
